@@ -4,6 +4,7 @@
   import { getDdsInfo } from '$lib/dds-info';
   import { isDds, isTex } from '$lib/identify';
   import { getTexInfo } from '$lib/tex-info';
+  import { filenameComponents } from '$lib/utils/file';
 
   let result = $state('');
   let resultType = $state('');
@@ -16,6 +17,9 @@
 
   let file = $state<File | null>(null);
 
+  let blobUrl: string | null = $state('');
+  let blobFilename = $state('');
+
   async function handleChange(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
     const { currentTarget } = e;
 
@@ -27,7 +31,6 @@
     if (currentTarget?.files && currentTarget.files.length > 0) {
       const infile = currentTarget.files[0];
       file = infile;
-      console.info('file info', infile);
 
       try {
         if (await isDds(infile)) {
@@ -59,6 +62,14 @@
 
     if (file) {
       console.info('Attempting conversion');
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+        blobUrl = null;
+        blobFilename = '';
+      }
+
+      const { basename } = filenameComponents(file);
+
       try {
         if (await isTex(file)) {
           console.info('Tex file');
@@ -71,9 +82,14 @@
         if (await isDds(file)) {
           console.info('DDS file');
           targetType = 'TEX';
-          const result = await ddsToTex(file);
-          console.info(result);
-          converted = JSON.stringify(result, null, 2);
+          const { header, buffer } = await ddsToTex(file);
+          console.info(header);
+          converted = JSON.stringify(header, null, 2);
+
+          const downloadBlob = new Blob([buffer], { type: 'application/octet-stream' });
+          const url = URL.createObjectURL(downloadBlob);
+          blobUrl = url;
+          blobFilename = `${basename}.tex`;
         }
       } catch (e) {
         conversionError = `${e}`;
@@ -134,7 +150,13 @@
       {/if}
       {#if converted}
         <p>
-          Converting to {targetType}
+          Converting to {targetType}.
+          <a
+            href={blobUrl}
+            download={blobFilename}
+          >
+            Download
+          </a>
         </p>
         <pre>{converted}</pre>
       {/if}
