@@ -1,0 +1,555 @@
+// This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
+
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define(['exports', 'kaitai-struct/KaitaiStream'], factory);
+  } else if (typeof exports === 'object' && exports !== null && typeof exports.nodeType !== 'number') {
+    factory(exports, require('kaitai-struct/KaitaiStream'));
+  } else {
+    factory(root.Dds || (root.Dds = {}), root.KaitaiStream);
+  }
+})(typeof self !== 'undefined' ? self : this, function (Dds_, KaitaiStream) {
+var Dds = (function() {
+  function Dds(_io, _parent, _root) {
+    this._io = _io;
+    this._parent = _parent;
+    this._root = _root || this;
+
+    this._read();
+  }
+  Dds.prototype._read = function() {
+    this.hdr = new Header(this._io, this, this._root);
+    if (this.fourcc == 808540228) {
+      this.hdrDxt10 = new HeaderDxt10(this._io, this, this._root);
+    }
+    this.bd = new Body(this._io, this, this._root);
+  }
+
+  var Body = Dds.Body = (function() {
+    function Body(_io, _parent, _root) {
+      this._io = _io;
+      this._parent = _parent;
+      this._root = _root;
+
+      this._read();
+    }
+    Body.prototype._read = function() {
+      this.data = [];
+      var i = 0;
+      while (!this._io.isEof()) {
+        this.data.push(this._io.readBytes(4));
+        i++;
+      }
+    }
+
+    return Body;
+  })();
+
+  var DdsPixelformat = Dds.DdsPixelformat = (function() {
+    DdsPixelformat.FormatFlags = Object.freeze({
+      DDPF_ALPHAPIXELS: 1,
+      DDPF_ALPHA: 2,
+      DDPF_FOURCC: 4,
+      DDPF_RGB: 64,
+      DDPF_YUV: 512,
+      DDPF_LUMINANCE: 131072,
+
+      1: "DDPF_ALPHAPIXELS",
+      2: "DDPF_ALPHA",
+      4: "DDPF_FOURCC",
+      64: "DDPF_RGB",
+      512: "DDPF_YUV",
+      131072: "DDPF_LUMINANCE",
+    });
+
+    DdsPixelformat.PixelFormats = Object.freeze({
+      NONE: 0,
+      DX10: 808540228,
+      DXT1: 827611204,
+      DXT3: 861165636,
+      DXT5: 894720068,
+      BC5U: 1429553986,
+
+      0: "NONE",
+      808540228: "DX10",
+      827611204: "DXT1",
+      861165636: "DXT3",
+      894720068: "DXT5",
+      1429553986: "BC5U",
+    });
+
+    function DdsPixelformat(_io, _parent, _root) {
+      this._io = _io;
+      this._parent = _parent;
+      this._root = _root;
+
+      this._read();
+    }
+    DdsPixelformat.prototype._read = function() {
+      this.size = this._io.readU4le();
+      this.flags = this._io.readU4le();
+      this.fourcc = this._io.readU4le();
+      this.rgbBitCount = this._io.readU4le();
+      this.rBitMask = this._io.readBytes(4);
+      this.gBitMask = this._io.readBytes(4);
+      this.bBitMask = this._io.readBytes(4);
+      this.aBitMask = this._io.readBytes(4);
+    }
+
+    return DdsPixelformat;
+  })();
+
+  /**
+   * @see {@link https://docs.microsoft.com/en-us/windows/win32/direct3ddds/dds-header|Source}
+   */
+
+  var Header = Dds.Header = (function() {
+    Header.Caps2Flags = Object.freeze({
+      DDSCAPS2_CUBEMAP: 512,
+      DDSCAPS2_CUBEMAP_POSITIVEX: 1024,
+      DDSCAPS2_CUBEMAP_NEGATIVEX: 2048,
+      DDSCAPS2_CUBEMAP_POSITIVEY: 4096,
+      DDSCAPS2_CUBEMAP_NEGATIVEY: 8192,
+      DDSCAPS2_CUBEMAP_POSITIVEZ: 16384,
+      DDSCAPS2_CUBEMAP_NEGATIVEZ: 32768,
+      DDSCAPS2_VOLUME: 2097152,
+
+      512: "DDSCAPS2_CUBEMAP",
+      1024: "DDSCAPS2_CUBEMAP_POSITIVEX",
+      2048: "DDSCAPS2_CUBEMAP_NEGATIVEX",
+      4096: "DDSCAPS2_CUBEMAP_POSITIVEY",
+      8192: "DDSCAPS2_CUBEMAP_NEGATIVEY",
+      16384: "DDSCAPS2_CUBEMAP_POSITIVEZ",
+      32768: "DDSCAPS2_CUBEMAP_NEGATIVEZ",
+      2097152: "DDSCAPS2_VOLUME",
+    });
+
+    Header.CapsFlags = Object.freeze({
+      DDSCAPS_COMPLEX: 8,
+      DDSCAPS_TEXTURE: 4096,
+      DDSCAPS_MIPMAP: 4194304,
+
+      8: "DDSCAPS_COMPLEX",
+      4096: "DDSCAPS_TEXTURE",
+      4194304: "DDSCAPS_MIPMAP",
+    });
+
+    Header.FormatFlags = Object.freeze({
+      DDSD_CAPS: 1,
+      DDSD_HEIGHT: 2,
+      DDSD_WIDTH: 4,
+      DDSD_PITCH: 8,
+      DDSD_PIXELFORMAT: 4096,
+      DDSD_MIPMAPCOUNT: 131072,
+      DDSD_LINEARSIZE: 524288,
+      DDSD_DEPTH: 8388608,
+
+      1: "DDSD_CAPS",
+      2: "DDSD_HEIGHT",
+      4: "DDSD_WIDTH",
+      8: "DDSD_PITCH",
+      4096: "DDSD_PIXELFORMAT",
+      131072: "DDSD_MIPMAPCOUNT",
+      524288: "DDSD_LINEARSIZE",
+      8388608: "DDSD_DEPTH",
+    });
+
+    function Header(_io, _parent, _root) {
+      this._io = _io;
+      this._parent = _parent;
+      this._root = _root;
+
+      this._read();
+    }
+    Header.prototype._read = function() {
+      this.magic = this._io.readBytes(4);
+      if (!((KaitaiStream.byteArrayCompare(this.magic, new Uint8Array([68, 68, 83, 32])) == 0))) {
+        throw new KaitaiStream.ValidationNotEqualError(new Uint8Array([68, 68, 83, 32]), this.magic, this._io, "/types/header/seq/0");
+      }
+      this.size = this._io.readU4le();
+      this.flags = this._io.readU4le();
+      this.height = this._io.readU4le();
+      this.width = this._io.readU4le();
+      this.pitchOrLinearSize = this._io.readU4le();
+      this.depth = this._io.readU4le();
+      this.mipmapCount = this._io.readU4le();
+      this.reserved1 = this._io.readBytes(44);
+      this.ddspf = new DdsPixelformat(this._io, this, this._root);
+      this.caps = this._io.readU4le();
+      this.caps2 = this._io.readU4le();
+      this.caps3 = this._io.readBytes(4);
+      this.caps4 = this._io.readBytes(4);
+      this.reserved2 = this._io.readBytes(4);
+    }
+
+    /**
+     * ppl dont actually use this so w/e
+     */
+
+    /**
+     * cubemap and volume stuff
+     */
+
+    /**
+     * unused
+     */
+
+    /**
+     * unused
+     */
+
+    return Header;
+  })();
+
+  var HeaderDxt10 = Dds.HeaderDxt10 = (function() {
+    HeaderDxt10.D3d10ResourceDimensionFormats = Object.freeze({
+      D3D10_RESOURCE_DIMENSION_UNKNOWN: 0,
+      D3D10_RESOURCE_DIMENSION_BUFFER: 1,
+      D3D10_RESOURCE_DIMENSION_TEXTURE1D: 2,
+      D3D10_RESOURCE_DIMENSION_TEXTURE2D: 3,
+      D3D10_RESOURCE_DIMENSION_TEXTURE3D: 4,
+
+      0: "D3D10_RESOURCE_DIMENSION_UNKNOWN",
+      1: "D3D10_RESOURCE_DIMENSION_BUFFER",
+      2: "D3D10_RESOURCE_DIMENSION_TEXTURE1D",
+      3: "D3D10_RESOURCE_DIMENSION_TEXTURE2D",
+      4: "D3D10_RESOURCE_DIMENSION_TEXTURE3D",
+    });
+
+    HeaderDxt10.D3d11ResourceMiscFlags = Object.freeze({
+      D3D11_RESOURCE_MISC_GENERATE_MIPS: 1,
+      D3D11_RESOURCE_MISC_SHARED: 2,
+      D3D11_RESOURCE_MISC_TEXTURECUBE: 4,
+      D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS: 16,
+      D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS: 32,
+      D3D11_RESOURCE_MISC_BUFFER_STRUCTURED: 64,
+      D3D11_RESOURCE_MISC_RESOURCE_CLAMP: 128,
+      D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX: 256,
+      D3D11_RESOURCE_MISC_GDI_COMPATIBLE: 512,
+      D3D11_RESOURCE_MISC_SHARED_NTHANDLE: 2048,
+      D3D11_RESOURCE_MISC_RESTRICTED_CONTENT: 4096,
+      D3D11_RESOURCE_MISC_RESTRICT_SHARED_RESOURCE: 8192,
+      D3D11_RESOURCE_MISC_RESTRICT_SHARED_RESOURCE_DRIVER: 16384,
+      D3D11_RESOURCE_MISC_GUARDED: 32768,
+      D3D11_RESOURCE_MISC_TILE_POOL: 131072,
+      D3D11_RESOURCE_MISC_TILED: 262144,
+      D3D11_RESOURCE_MISC_HW_PROTECTED: 524288,
+      D3D11_RESOURCE_MISC_SHARED_DISPLAYABLE: 1048576,
+      D3D11_RESOURCE_MISC_SHARED_EXCLUSIVE_WRITER: 2097152,
+
+      1: "D3D11_RESOURCE_MISC_GENERATE_MIPS",
+      2: "D3D11_RESOURCE_MISC_SHARED",
+      4: "D3D11_RESOURCE_MISC_TEXTURECUBE",
+      16: "D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS",
+      32: "D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS",
+      64: "D3D11_RESOURCE_MISC_BUFFER_STRUCTURED",
+      128: "D3D11_RESOURCE_MISC_RESOURCE_CLAMP",
+      256: "D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX",
+      512: "D3D11_RESOURCE_MISC_GDI_COMPATIBLE",
+      2048: "D3D11_RESOURCE_MISC_SHARED_NTHANDLE",
+      4096: "D3D11_RESOURCE_MISC_RESTRICTED_CONTENT",
+      8192: "D3D11_RESOURCE_MISC_RESTRICT_SHARED_RESOURCE",
+      16384: "D3D11_RESOURCE_MISC_RESTRICT_SHARED_RESOURCE_DRIVER",
+      32768: "D3D11_RESOURCE_MISC_GUARDED",
+      131072: "D3D11_RESOURCE_MISC_TILE_POOL",
+      262144: "D3D11_RESOURCE_MISC_TILED",
+      524288: "D3D11_RESOURCE_MISC_HW_PROTECTED",
+      1048576: "D3D11_RESOURCE_MISC_SHARED_DISPLAYABLE",
+      2097152: "D3D11_RESOURCE_MISC_SHARED_EXCLUSIVE_WRITER",
+    });
+
+    HeaderDxt10.D3d11ResourceMiscFlags2 = Object.freeze({
+      DDS_ALPHA_MODE_UNKNOWN: 0,
+      DDS_ALPHA_MODE_STRAIGHT: 1,
+      DDS_ALPHA_MODE_PREMULTIPLIED: 2,
+      DDS_ALPHA_MODE_OPAQUE: 3,
+      DDS_ALPHA_MODE_CUSTOM: 4,
+
+      0: "DDS_ALPHA_MODE_UNKNOWN",
+      1: "DDS_ALPHA_MODE_STRAIGHT",
+      2: "DDS_ALPHA_MODE_PREMULTIPLIED",
+      3: "DDS_ALPHA_MODE_OPAQUE",
+      4: "DDS_ALPHA_MODE_CUSTOM",
+    });
+
+    HeaderDxt10.DxgiFormats = Object.freeze({
+      DXGI_FORMAT_UNKNOWN: 0,
+      DXGI_FORMAT_R32G32B32A32_TYPELESS: 1,
+      DXGI_FORMAT_R32G32B32A32_FLOAT: 2,
+      DXGI_FORMAT_R32G32B32A32_UINT: 3,
+      DXGI_FORMAT_R32G32B32A32_SINT: 4,
+      DXGI_FORMAT_R32G32B32_TYPELESS: 5,
+      DXGI_FORMAT_R32G32B32_FLOAT: 6,
+      DXGI_FORMAT_R32G32B32_UINT: 7,
+      DXGI_FORMAT_R32G32B32_SINT: 8,
+      DXGI_FORMAT_R16G16B16A16_TYPELESS: 9,
+      DXGI_FORMAT_R16G16B16A16_FLOAT: 10,
+      DXGI_FORMAT_R16G16B16A16_UNORM: 11,
+      DXGI_FORMAT_R16G16B16A16_UINT: 12,
+      DXGI_FORMAT_R16G16B16A16_SNORM: 13,
+      DXGI_FORMAT_R16G16B16A16_SINT: 14,
+      DXGI_FORMAT_R32G32_TYPELESS: 15,
+      DXGI_FORMAT_R32G32_FLOAT: 16,
+      DXGI_FORMAT_R32G32_UINT: 17,
+      DXGI_FORMAT_R32G32_SINT: 18,
+      DXGI_FORMAT_R32G8X24_TYPELESS: 19,
+      DXGI_FORMAT_D32_FLOAT_S8X24_UINT: 20,
+      DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS: 21,
+      DXGI_FORMAT_X32_TYPELESS_G8X24_UINT: 22,
+      DXGI_FORMAT_R10G10B10A2_TYPELESS: 23,
+      DXGI_FORMAT_R10G10B10A2_UNORM: 24,
+      DXGI_FORMAT_R10G10B10A2_UINT: 25,
+      DXGI_FORMAT_R11G11B10_FLOAT: 26,
+      DXGI_FORMAT_R8G8B8A8_TYPELESS: 27,
+      DXGI_FORMAT_R8G8B8A8_UNORM: 28,
+      DXGI_FORMAT_R8G8B8A8_UNORM_SRGB: 29,
+      DXGI_FORMAT_R8G8B8A8_UINT: 30,
+      DXGI_FORMAT_R8G8B8A8_SNORM: 31,
+      DXGI_FORMAT_R8G8B8A8_SINT: 32,
+      DXGI_FORMAT_R16G16_TYPELESS: 33,
+      DXGI_FORMAT_R16G16_FLOAT: 34,
+      DXGI_FORMAT_R16G16_UNORM: 35,
+      DXGI_FORMAT_R16G16_UINT: 36,
+      DXGI_FORMAT_R16G16_SNORM: 37,
+      DXGI_FORMAT_R16G16_SINT: 38,
+      DXGI_FORMAT_R32_TYPELESS: 39,
+      DXGI_FORMAT_D32_FLOAT: 40,
+      DXGI_FORMAT_R32_FLOAT: 41,
+      DXGI_FORMAT_R32_UINT: 42,
+      DXGI_FORMAT_R32_SINT: 43,
+      DXGI_FORMAT_R24G8_TYPELESS: 44,
+      DXGI_FORMAT_D24_UNORM_S8_UINT: 45,
+      DXGI_FORMAT_R24_UNORM_X8_TYPELESS: 46,
+      DXGI_FORMAT_X24_TYPELESS_G8_UINT: 47,
+      DXGI_FORMAT_R8G8_TYPELESS: 48,
+      DXGI_FORMAT_R8G8_UNORM: 49,
+      DXGI_FORMAT_R8G8_UINT: 50,
+      DXGI_FORMAT_R8G8_SNORM: 51,
+      DXGI_FORMAT_R8G8_SINT: 52,
+      DXGI_FORMAT_R16_TYPELESS: 53,
+      DXGI_FORMAT_R16_FLOAT: 54,
+      DXGI_FORMAT_D16_UNORM: 55,
+      DXGI_FORMAT_R16_UNORM: 56,
+      DXGI_FORMAT_R16_UINT: 57,
+      DXGI_FORMAT_R16_SNORM: 58,
+      DXGI_FORMAT_R16_SINT: 59,
+      DXGI_FORMAT_R8_TYPELESS: 60,
+      DXGI_FORMAT_R8_UNORM: 61,
+      DXGI_FORMAT_R8_UINT: 62,
+      DXGI_FORMAT_R8_SNORM: 63,
+      DXGI_FORMAT_R8_SINT: 64,
+      DXGI_FORMAT_A8_UNORM: 65,
+      DXGI_FORMAT_R1_UNORM: 66,
+      DXGI_FORMAT_R9G9B9E5_SHAREDEXP: 67,
+      DXGI_FORMAT_R8G8_B8G8_UNORM: 68,
+      DXGI_FORMAT_G8R8_G8B8_UNORM: 69,
+      DXGI_FORMAT_BC1_TYPELESS: 70,
+      DXGI_FORMAT_BC1_UNORM: 71,
+      DXGI_FORMAT_BC1_UNORM_SRGB: 72,
+      DXGI_FORMAT_BC2_TYPELESS: 73,
+      DXGI_FORMAT_BC2_UNORM: 74,
+      DXGI_FORMAT_BC2_UNORM_SRGB: 75,
+      DXGI_FORMAT_BC3_TYPELESS: 76,
+      DXGI_FORMAT_BC3_UNORM: 77,
+      DXGI_FORMAT_BC3_UNORM_SRGB: 78,
+      DXGI_FORMAT_BC4_TYPELESS: 79,
+      DXGI_FORMAT_BC4_UNORM: 80,
+      DXGI_FORMAT_BC4_SNORM: 81,
+      DXGI_FORMAT_BC5_TYPELESS: 82,
+      DXGI_FORMAT_BC5_UNORM: 83,
+      DXGI_FORMAT_BC5_SNORM: 84,
+      DXGI_FORMAT_B5G6R5_UNORM: 85,
+      DXGI_FORMAT_B5G5R5A1_UNORM: 86,
+      DXGI_FORMAT_B8G8R8A8_UNORM: 87,
+      DXGI_FORMAT_B8G8R8X8_UNORM: 88,
+      DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM: 89,
+      DXGI_FORMAT_B8G8R8A8_TYPELESS: 90,
+      DXGI_FORMAT_B8G8R8A8_UNORM_SRGB: 91,
+      DXGI_FORMAT_B8G8R8X8_TYPELESS: 92,
+      DXGI_FORMAT_B8G8R8X8_UNORM_SRGB: 93,
+      DXGI_FORMAT_BC6H_TYPELESS: 94,
+      DXGI_FORMAT_BC6H_UF16: 95,
+      DXGI_FORMAT_BC6H_SF16: 96,
+      DXGI_FORMAT_BC7_TYPELESS: 97,
+      DXGI_FORMAT_BC7_UNORM: 98,
+      DXGI_FORMAT_BC7_UNORM_SRGB: 99,
+      DXGI_FORMAT_AYUV: 100,
+      DXGI_FORMAT_Y410: 101,
+      DXGI_FORMAT_Y416: 102,
+      DXGI_FORMAT_NV12: 103,
+      DXGI_FORMAT_P010: 104,
+      DXGI_FORMAT_P016: 105,
+      DXGI_FORMAT_420_OPAQUE: 106,
+      DXGI_FORMAT_YUY2: 107,
+      DXGI_FORMAT_Y210: 108,
+      DXGI_FORMAT_Y216: 109,
+      DXGI_FORMAT_NV11: 110,
+      DXGI_FORMAT_AI44: 111,
+      DXGI_FORMAT_IA44: 112,
+      DXGI_FORMAT_P8: 113,
+      DXGI_FORMAT_A8P8: 114,
+      DXGI_FORMAT_B4G4R4A4_UNORM: 115,
+      DXGI_FORMAT_P208: 130,
+      DXGI_FORMAT_V208: 131,
+      DXGI_FORMAT_V408: 132,
+      DXGI_FORMAT_SAMPLER_FEEDBACK_MIN_MIP_OPAQUE: 189,
+      DXGI_FORMAT_SAMPLER_FEEDBACK_MIP_REGION_USED_OPAQUE: 190,
+      DXGI_FORMAT_FORCE_UINT: 4294967295,
+
+      0: "DXGI_FORMAT_UNKNOWN",
+      1: "DXGI_FORMAT_R32G32B32A32_TYPELESS",
+      2: "DXGI_FORMAT_R32G32B32A32_FLOAT",
+      3: "DXGI_FORMAT_R32G32B32A32_UINT",
+      4: "DXGI_FORMAT_R32G32B32A32_SINT",
+      5: "DXGI_FORMAT_R32G32B32_TYPELESS",
+      6: "DXGI_FORMAT_R32G32B32_FLOAT",
+      7: "DXGI_FORMAT_R32G32B32_UINT",
+      8: "DXGI_FORMAT_R32G32B32_SINT",
+      9: "DXGI_FORMAT_R16G16B16A16_TYPELESS",
+      10: "DXGI_FORMAT_R16G16B16A16_FLOAT",
+      11: "DXGI_FORMAT_R16G16B16A16_UNORM",
+      12: "DXGI_FORMAT_R16G16B16A16_UINT",
+      13: "DXGI_FORMAT_R16G16B16A16_SNORM",
+      14: "DXGI_FORMAT_R16G16B16A16_SINT",
+      15: "DXGI_FORMAT_R32G32_TYPELESS",
+      16: "DXGI_FORMAT_R32G32_FLOAT",
+      17: "DXGI_FORMAT_R32G32_UINT",
+      18: "DXGI_FORMAT_R32G32_SINT",
+      19: "DXGI_FORMAT_R32G8X24_TYPELESS",
+      20: "DXGI_FORMAT_D32_FLOAT_S8X24_UINT",
+      21: "DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS",
+      22: "DXGI_FORMAT_X32_TYPELESS_G8X24_UINT",
+      23: "DXGI_FORMAT_R10G10B10A2_TYPELESS",
+      24: "DXGI_FORMAT_R10G10B10A2_UNORM",
+      25: "DXGI_FORMAT_R10G10B10A2_UINT",
+      26: "DXGI_FORMAT_R11G11B10_FLOAT",
+      27: "DXGI_FORMAT_R8G8B8A8_TYPELESS",
+      28: "DXGI_FORMAT_R8G8B8A8_UNORM",
+      29: "DXGI_FORMAT_R8G8B8A8_UNORM_SRGB",
+      30: "DXGI_FORMAT_R8G8B8A8_UINT",
+      31: "DXGI_FORMAT_R8G8B8A8_SNORM",
+      32: "DXGI_FORMAT_R8G8B8A8_SINT",
+      33: "DXGI_FORMAT_R16G16_TYPELESS",
+      34: "DXGI_FORMAT_R16G16_FLOAT",
+      35: "DXGI_FORMAT_R16G16_UNORM",
+      36: "DXGI_FORMAT_R16G16_UINT",
+      37: "DXGI_FORMAT_R16G16_SNORM",
+      38: "DXGI_FORMAT_R16G16_SINT",
+      39: "DXGI_FORMAT_R32_TYPELESS",
+      40: "DXGI_FORMAT_D32_FLOAT",
+      41: "DXGI_FORMAT_R32_FLOAT",
+      42: "DXGI_FORMAT_R32_UINT",
+      43: "DXGI_FORMAT_R32_SINT",
+      44: "DXGI_FORMAT_R24G8_TYPELESS",
+      45: "DXGI_FORMAT_D24_UNORM_S8_UINT",
+      46: "DXGI_FORMAT_R24_UNORM_X8_TYPELESS",
+      47: "DXGI_FORMAT_X24_TYPELESS_G8_UINT",
+      48: "DXGI_FORMAT_R8G8_TYPELESS",
+      49: "DXGI_FORMAT_R8G8_UNORM",
+      50: "DXGI_FORMAT_R8G8_UINT",
+      51: "DXGI_FORMAT_R8G8_SNORM",
+      52: "DXGI_FORMAT_R8G8_SINT",
+      53: "DXGI_FORMAT_R16_TYPELESS",
+      54: "DXGI_FORMAT_R16_FLOAT",
+      55: "DXGI_FORMAT_D16_UNORM",
+      56: "DXGI_FORMAT_R16_UNORM",
+      57: "DXGI_FORMAT_R16_UINT",
+      58: "DXGI_FORMAT_R16_SNORM",
+      59: "DXGI_FORMAT_R16_SINT",
+      60: "DXGI_FORMAT_R8_TYPELESS",
+      61: "DXGI_FORMAT_R8_UNORM",
+      62: "DXGI_FORMAT_R8_UINT",
+      63: "DXGI_FORMAT_R8_SNORM",
+      64: "DXGI_FORMAT_R8_SINT",
+      65: "DXGI_FORMAT_A8_UNORM",
+      66: "DXGI_FORMAT_R1_UNORM",
+      67: "DXGI_FORMAT_R9G9B9E5_SHAREDEXP",
+      68: "DXGI_FORMAT_R8G8_B8G8_UNORM",
+      69: "DXGI_FORMAT_G8R8_G8B8_UNORM",
+      70: "DXGI_FORMAT_BC1_TYPELESS",
+      71: "DXGI_FORMAT_BC1_UNORM",
+      72: "DXGI_FORMAT_BC1_UNORM_SRGB",
+      73: "DXGI_FORMAT_BC2_TYPELESS",
+      74: "DXGI_FORMAT_BC2_UNORM",
+      75: "DXGI_FORMAT_BC2_UNORM_SRGB",
+      76: "DXGI_FORMAT_BC3_TYPELESS",
+      77: "DXGI_FORMAT_BC3_UNORM",
+      78: "DXGI_FORMAT_BC3_UNORM_SRGB",
+      79: "DXGI_FORMAT_BC4_TYPELESS",
+      80: "DXGI_FORMAT_BC4_UNORM",
+      81: "DXGI_FORMAT_BC4_SNORM",
+      82: "DXGI_FORMAT_BC5_TYPELESS",
+      83: "DXGI_FORMAT_BC5_UNORM",
+      84: "DXGI_FORMAT_BC5_SNORM",
+      85: "DXGI_FORMAT_B5G6R5_UNORM",
+      86: "DXGI_FORMAT_B5G5R5A1_UNORM",
+      87: "DXGI_FORMAT_B8G8R8A8_UNORM",
+      88: "DXGI_FORMAT_B8G8R8X8_UNORM",
+      89: "DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM",
+      90: "DXGI_FORMAT_B8G8R8A8_TYPELESS",
+      91: "DXGI_FORMAT_B8G8R8A8_UNORM_SRGB",
+      92: "DXGI_FORMAT_B8G8R8X8_TYPELESS",
+      93: "DXGI_FORMAT_B8G8R8X8_UNORM_SRGB",
+      94: "DXGI_FORMAT_BC6H_TYPELESS",
+      95: "DXGI_FORMAT_BC6H_UF16",
+      96: "DXGI_FORMAT_BC6H_SF16",
+      97: "DXGI_FORMAT_BC7_TYPELESS",
+      98: "DXGI_FORMAT_BC7_UNORM",
+      99: "DXGI_FORMAT_BC7_UNORM_SRGB",
+      100: "DXGI_FORMAT_AYUV",
+      101: "DXGI_FORMAT_Y410",
+      102: "DXGI_FORMAT_Y416",
+      103: "DXGI_FORMAT_NV12",
+      104: "DXGI_FORMAT_P010",
+      105: "DXGI_FORMAT_P016",
+      106: "DXGI_FORMAT_420_OPAQUE",
+      107: "DXGI_FORMAT_YUY2",
+      108: "DXGI_FORMAT_Y210",
+      109: "DXGI_FORMAT_Y216",
+      110: "DXGI_FORMAT_NV11",
+      111: "DXGI_FORMAT_AI44",
+      112: "DXGI_FORMAT_IA44",
+      113: "DXGI_FORMAT_P8",
+      114: "DXGI_FORMAT_A8P8",
+      115: "DXGI_FORMAT_B4G4R4A4_UNORM",
+      130: "DXGI_FORMAT_P208",
+      131: "DXGI_FORMAT_V208",
+      132: "DXGI_FORMAT_V408",
+      189: "DXGI_FORMAT_SAMPLER_FEEDBACK_MIN_MIP_OPAQUE",
+      190: "DXGI_FORMAT_SAMPLER_FEEDBACK_MIP_REGION_USED_OPAQUE",
+      4294967295: "DXGI_FORMAT_FORCE_UINT",
+    });
+
+    function HeaderDxt10(_io, _parent, _root) {
+      this._io = _io;
+      this._parent = _parent;
+      this._root = _root;
+
+      this._read();
+    }
+    HeaderDxt10.prototype._read = function() {
+      this.dxgiFormat = this._io.readU4le();
+      this.d3d10ResourceDimension = this._io.readU4le();
+      this.miscFlag = this._io.readU4le();
+      this.arraySize = this._io.readU4le();
+      this.miscFlags2 = this._io.readU4le();
+    }
+
+    return HeaderDxt10;
+  })();
+  Object.defineProperty(Dds.prototype, 'fourcc', {
+    get: function() {
+      if (this._m_fourcc !== undefined)
+        return this._m_fourcc;
+      var _pos = this._io.pos;
+      this._io.seek(84);
+      this._m_fourcc = this._io.readU4le();
+      this._io.seek(_pos);
+      return this._m_fourcc;
+    }
+  });
+
+  return Dds;
+})();
+Dds_.Dds = Dds;
+});
