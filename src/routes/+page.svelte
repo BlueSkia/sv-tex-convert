@@ -118,8 +118,12 @@
       class="border-2 border-slate-500 rounded-md bg-slate-200 px-2"
       onclick={convertFile}
     >
-      Convert (header info only atm)
+      Convert
     </button>
+
+    <br/>
+
+    * Only DDS to tex. BC5 still in progress.
   </p>
 
   <div class="outcols grid grid-cols-2 gap-2">
@@ -152,6 +156,7 @@
         <p>
           Converting to {targetType}.
           <a
+            class='font-bold text-purple-700'
             href={blobUrl}
             download={blobFilename}
           >
