@@ -26,13 +26,13 @@ export function parseDds(buffer: ArrayBuffer) {
 
   const isBlockCompressed = ['DXT1', 'DXT2', 'DXT3', 'DXT4', 'DXT5', 'DX10'].includes(header.ddsPixelFormat.fourCC.text);
 
-  const body = parseDdsBody(buffer, header, isBlockCompressed, buffer.byteLength);
-
   let headerDxt10 = undefined;
 
   if (hasDx10(header)) {
     headerDxt10 = parseDdsHeaderDx10(buffer.slice(header.size + magic.byteLength));
   }
+
+  const body = parseDdsBody(buffer.slice(4 + header.size + (headerDxt10 ? 4 * 5 : 0)));
 
   return {
     magic: Number(magic),
@@ -174,26 +174,8 @@ function parseDdsHeaderDx10(buffer: ArrayBuffer) {
   };
 }
 
-function parseDdsBody(
-  buffer: ArrayBuffer,
-  header: DdsHeader,
-  isBlockCompressed: boolean,
-  eof: number,
-) {
-  let pitchOrLinearSize = 0;
-
-  if (!isBlockCompressed) {
-    pitchOrLinearSize = (header.width * header.ddsPixelFormat.rgbBitCount + 7) * 8;
-  }
-
-  const mipMaps = [undefined, undefined];
-
+function parseDdsBody(buffer: ArrayBuffer) {
   return {
-    _raw: {
-      body: new Uint8Array(buffer),
-    },
-    // mainTexture: mipMaps[0],
-    // mipMaps: mipMaps.slice(1),
-    // pitchOrLinearSize,
+    _raw: new Uint8Array(buffer),
   };
 }
