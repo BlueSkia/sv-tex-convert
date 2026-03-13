@@ -87,9 +87,7 @@ function parseTexBody(buffer: ArrayBuffer, offsets: number[], eof: number) {
   });
 
   return {
-    _raw: {
-      body: new Uint8Array(buffer),
-    },
+    _raw: new Uint8Array(buffer),
     mainTexture: mipMaps[0],
     mipMaps: mipMaps.slice(1),
   };
