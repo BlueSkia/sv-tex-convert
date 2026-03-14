@@ -74,9 +74,14 @@
         if (await isTex(file)) {
           console.info('Tex file');
           targetType = 'DDS';
-          const result = await texToDds(file);
-          console.info(result);
-          converted = JSON.stringify(result, null, 2);
+          const { header, headerDxt10, data } = await texToDds(file);
+          console.info({ header, headerDxt10 });
+          converted = JSON.stringify({ header, headerDxt10 }, null, 2);
+
+          const downloadBlob = new Blob(data, { type: 'application/octet-stream'});
+          const url = URL.createObjectURL(downloadBlob);
+          blobUrl = url;
+          blobFilename = `${basename}.dds`;
         }
 
         if (await isDds(file)) {

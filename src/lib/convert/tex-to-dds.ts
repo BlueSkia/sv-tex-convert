@@ -4,6 +4,7 @@ import {
 } from '$lib/parsers/tex-parser';
 import { TextureFormat, TextureType } from '$lib/enums/tex';
 import { CapsFlags, DdsFormatFlags, DdsPixelFormats, DxgiFormats, FormatFlags } from '$lib/enums/dds';
+import { NotSupportedError, NotYetImplementedError } from '$lib/utils/error';
 
 function toDdsFlags(header: TexHeader) {
   let flags = FormatFlags.DDSD_CAPS +
@@ -63,7 +64,7 @@ function toDdsPitchOrLinearSize(header: TexHeader) {
     ) {
       blockSize = 16;
     } else {
-      throw new Error(`Unhandled format ${format.text}`);
+      throw new NotSupportedError(`Unhandled format ${format.text} (pitchOrLinearSize)`);
     }
 
     pitch = Math.max(1, (width / 4)) * Math.max(1, (height / 4)) * blockSize;
@@ -86,7 +87,11 @@ function toFourCC(header: TexHeader) {
       return DdsPixelFormats.DXT5;
 
     case TextureFormat.ATI1:
+      // return DdsPixelFormats.BC4U;
+
     case TextureFormat.ATI2:
+      // return DdsPixelFormats.BC5U;
+
     case TextureFormat.BC7:
       return DdsPixelFormats.DX10;
 
@@ -97,7 +102,7 @@ function toFourCC(header: TexHeader) {
       return DdsPixelFormats.NONE;
 
     default:
-      throw new Error(`Unhandled format ${format.text}`);
+      throw new NotSupportedError(`Unhandled format ${format.text} (fourCC)`);
   }
 }
 
@@ -178,7 +183,7 @@ function toDxgiFormat(header: TexHeader) {
     case TextureFormat.ATI1:
       return DxgiFormats.DXGI_FORMAT_BC4_UNORM;
     default:
-      throw new Error(`[DX10 Header] Unhandled format ${format.text}`);
+      throw new NotSupportedError(`Unhandled format ${format.text} (dxgi)`);
   }
 }
 
@@ -200,26 +205,38 @@ export async function texToDds(file: File) {
   if (
     !(header.flags.value & TextureType.TEXTURE_TYPE_2D)
   ) {
-    throw new Error('Only 2D texture conversion implemented');
+    throw new NotYetImplementedError('Only 2D texture conversion implemented');
   }
 
   // Start building
   // https://learn.microsoft.com/en-us/windows/win32/direct3ddds/dx-graphics-dds-pguide
+  // Nevermind that guide seems to be inaccurate for our purposes.
+  // We're just gonna try to shape this into what penumbra would have generated
   const magic = 'DDS ';
   const ddsHeader = {
+    // Header size. Always 124
     size: 124,
+
     flags: toDdsFlags(header),
+
     height: header.height,
     width: header.width,
+
     pitchOrLinearSize: toDdsPitchOrLinearSize(header),
+
     depth: header.depth,
+
     mipMapCount: header.mipMapCount,
+
     reserved1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // unused
+
     ddsPixelFormat: toDdsPixelFormat(header),
+
     caps: toCaps1(header),
     caps2: toCaps2(header),
     caps3: 0, // unused
     caps4: 0, // unused
+
     reserved2: 0, // unused
   };
 
@@ -227,9 +244,57 @@ export async function texToDds(file: File) {
 
   const ddsHeaderDx10 = hasFourCC ? toDdsDx10Header(header) : null;
 
+  const fileBuffers = [
+    (new TextEncoder).encode(magic),
+    new Uint32Array([ddsHeader.size]),
+    new Uint32Array([ddsHeader.flags]),
+    new Uint32Array([ddsHeader.height, ddsHeader.width]),
+    new Uint32Array([ddsHeader.pitchOrLinearSize]),
+    new Uint32Array([ddsHeader.depth]),
+    new Uint32Array([ddsHeader.mipMapCount]),
+    new Uint32Array(ddsHeader.reserved1),
+
+    // Pixel format madness
+    new Uint32Array([ddsHeader.ddsPixelFormat.size]),
+    new Uint32Array([ddsHeader.ddsPixelFormat.flags]),
+    new Uint32Array([ddsHeader.ddsPixelFormat.fourCC]),
+    new Uint32Array([ddsHeader.ddsPixelFormat.rgbBitCount]),
+    new Uint32Array([ddsHeader.ddsPixelFormat.rBitMask]),
+    new Uint32Array([ddsHeader.ddsPixelFormat.gBitMask]),
+    new Uint32Array([ddsHeader.ddsPixelFormat.bBitMask]),
+    new Uint32Array([ddsHeader.ddsPixelFormat.aBitMask]),
+
+    new Uint32Array([
+      ddsHeader.caps,
+      ddsHeader.caps2,
+      ddsHeader.caps3,
+      ddsHeader.caps4,
+    ]),
+
+    new Uint32Array([ddsHeader.reserved2]),
+  ];
+
+  if (hasFourCC && ddsHeaderDx10) {
+    fileBuffers.push(
+      new Uint32Array([ddsHeaderDx10.dxgiFormat]),
+      new Uint32Array([ddsHeaderDx10.d3d10ResourceDimension]),
+      new Uint32Array([ddsHeaderDx10.miscFlag]),
+      new Uint32Array([ddsHeaderDx10.arraySize]),
+      new Uint32Array([ddsHeaderDx10.miscFlags2]),
+    );
+  }
+
+  fileBuffers.push(
+    body._raw,
+  );
+
+  console.info('body?', body._raw.slice(0, 16));
+  console.info('file buffers?', fileBuffers);
+
   return {
     magic,
     header: ddsHeader,
     headerDxt10: ddsHeaderDx10,
+    data: fileBuffers,
   };
 }
