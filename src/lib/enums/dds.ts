@@ -72,6 +72,7 @@ export const DdsPixelFormats = {
   DXT3: 861165636,
   DXT4: 877942852,
   DXT5: 894720068,
+  BC4U: 1429488450,
   BC5U: 1429553986,
 
   0: 'NONE',
@@ -81,6 +82,7 @@ export const DdsPixelFormats = {
   861165636: 'DXT3',
   877942852: 'DXT4',
   894720068: 'DXT5',
+  1429488450: 'BC4U',
   1429553986: 'BC5U',
 };
 
