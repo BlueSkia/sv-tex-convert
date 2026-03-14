@@ -73,6 +73,7 @@ function parseDdsPixelFormat(buffer: ArrayBuffer) {
     fourCC: {
       text: DdsPixelFormats[Number(fourCC) as keyof typeof DdsPixelFormats] as string,
       value: Number(fourCC),
+      parsed: (new TextDecoder).decode(fourCC),
     },
     rgbBitCount: Number(rgbBitCount),
     rBitMask: Number(rBitMask),
