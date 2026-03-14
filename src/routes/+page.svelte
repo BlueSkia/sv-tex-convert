@@ -109,7 +109,9 @@
 
 <div class="w-2/3 mx-auto">
   <p class="text-center my-4">
-    <a href="https://github.com/BlueSkia/sv-tex-convert">Source</a>
+    <a class="font-bold" href="https://github.com/BlueSkia/sv-tex-convert">
+      Source
+    </a>
   </p>
 
   <p class="text-center">
@@ -129,12 +131,22 @@
     >
       Convert
     </button>
+
+    <br/>
+
+    <small>
+      No conversion of pixel formats is done.
+      For DDS conversions to and from other formats (e.g. png) check
+      <a class="font-bold" href="https://github.com/microsoft/DirectXTex/wiki/Texconv">
+        texconv
+      </a>.
+    </small>
   </p>
 
   {#if converted}
     <p class="text-center text-lg my-2">
       <a
-        class="font-bold text-purple-300"
+        class="font-bold"
         href={blobUrl}
         download={blobFilename}
       >

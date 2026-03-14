@@ -1,5 +1,7 @@
 # sv-tex-convert
 
+[website](https://tex-convert.eridanus.page)
+
 ## What
 
 Web interface to easily convert between FF14's tex format and DirectX's DDS.
