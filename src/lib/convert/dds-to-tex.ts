@@ -232,8 +232,7 @@ export async function ddsToTex(file: File) {
   const fileBuffers = [
     new Uint32Array([texHeader.attributes]),
     new Uint32Array([texHeader.format]),
-    new Uint16Array([texHeader.width]),
-    new Uint16Array([texHeader.height]),
+    new Uint16Array([texHeader.width, texHeader.height]),
     new Uint16Array([texHeader.depth]),
     new Uint8Array([texHeader.mipLevels]),
     new Uint8Array([texHeader.arraySize]),
