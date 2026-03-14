@@ -11,6 +11,7 @@ import {
   TextureFormat,
   TextureType,
 } from '$lib/enums/tex';
+import { NotSupportedError, NotYetImplementedError } from '$lib/utils/error';
 
 function toTexPixelFormat(ddsInfo: ParsedDds) {
   const fourCC = ddsInfo.header.ddsPixelFormat.fourCC;
@@ -25,6 +26,14 @@ function toTexPixelFormat(ddsInfo: ParsedDds) {
 
   if (fourCC.value === DdsPixelFormats.DXT5) {
     return TextureFormat.DXT5;
+  }
+
+  if (fourCC.value === DdsPixelFormats.BC4U) {
+    return TextureFormat.ATI1;
+  }
+
+  if (fourCC.value === DdsPixelFormats.BC5U) {
+    return TextureFormat.ATI2;
   }
 
   if (ddsInfo.headerDxt10) {
@@ -59,7 +68,7 @@ function toTexPixelFormat(ddsInfo: ParsedDds) {
         return TextureFormat.ATI1;
 
       default:
-        throw new Error(`Unhandled format ${dxgiFormat.text}`);
+        throw new NotSupportedError(`Unhandled format ${dxgiFormat.text} (dxgi)`);
     }
   }
 
@@ -81,7 +90,7 @@ function toTexPixelFormat(ddsInfo: ParsedDds) {
     }
   }
 
-  throw new Error(`Unhandled format ${fourCC.value}`);
+  throw new NotSupportedError(`Unhandled format ${fourCC.value} (fourCC)`);
 }
 
 function getTexMipMapLengthFormat(ddsInfo: ParsedDds) {
@@ -94,7 +103,10 @@ function getTexMipMapLengthFormat(ddsInfo: ParsedDds) {
     },
   } = ddsInfo.header;
 
-  if (fourCC.value === DdsPixelFormats.DXT1) {
+  if (
+    fourCC.value === DdsPixelFormats.DXT1 ||
+    fourCC.value === DdsPixelFormats.BC4U
+  ) {
     return Math.floor((height * width) / 2);
   }
 
@@ -147,22 +159,23 @@ function getTexMipMapLengthFormat(ddsInfo: ParsedDds) {
   return 0;
 }
 
-function getMipMapOffsets(mipMapLength: number, ddsInfo: ParsedDds) {
-  const count = ddsInfo.header.mipMapCount;
+function getMipMapOffsets(mipMapLength: number, { header }: ParsedDds) {
+  const count = header.mipMapCount;
 
-  const isBC1 = ddsInfo.header.ddsPixelFormat.fourCC.value === DdsPixelFormats.DXT1;
+  let minMipSize = 16;
+  if (
+    header.ddsPixelFormat.fourCC.value === DdsPixelFormats.DXT1 ||
+    header.ddsPixelFormat.fourCC.value === DdsPixelFormats.BC4U
+  ) {
+    minMipSize = 8;
+  }
 
-  const offsets: number[] = [];
-  let max = 13;
+  const offsets = Array(13).fill(0);
 
-  for (let i = 0, len = mipMapLength, offset = 0x50; i < max; i++) {
-    if (offsets.length < count) {
-      offsets.push(offset);
-    } else {
-      offsets.push(0);
-    }
+  for (let i = 0, len = mipMapLength, offset = 0x50; i < count; i++) {
+    offsets[i] = offset;
     offset += len;
-    len = Math.max(isBC1 ? 8 : 16, len >> 2);
+    len = Math.max(minMipSize, len >> 2);
   }
 
   return offsets;
@@ -184,64 +197,53 @@ export async function ddsToTex(file: File) {
     header.caps2.flags.includes(Caps2Flags.DDSCAPS2_CUBEMAP) ||
     header.caps2.flags.includes(Caps2Flags.DDSCAPS2_VOLUME)
   ) {
-    throw new Error('Only 2D texture conversion implemented');
+    throw new NotYetImplementedError('Only 2D texture conversion implemented');
   }
 
   // Start building
   const texHeader = {
+    // Attributes / flags. 2D Texture for now
     attributes: TextureType.TEXTURE_TYPE_2D,
+
+    // Pixel format
     format: toTexPixelFormat(ddsInfo),
+
+    // Image dimensions
     width: header.width,
     height: header.height,
+
+    // Depth
     depth: header.depth,
+
+    // MipMap levels
     mipLevels: Math.min(header.mipMapCount, 13),
-    arraySize: 0, // 0 if 2D texture
+
+    // Image array size. 0 if 2D texture
+    arraySize: 0,
+
+    // LoD indices/offsets
     lodIndices: [0, 1, 2],
+
+    // Offsets to each mipmap
     offsetsToSurfaces: toTexOffsetArray(ddsInfo),
   };
 
-  const headerBuffer = new ArrayBuffer(
-    4 + // attributes
-    4 + // format
-    2 + // width
-    2 + // height
-    2 + // depth
-    1 + // mipLevels
-    1 + // arraySize
-    (4 * 3) + // lod indices
-    (4 * 13) // offsets to surfaces
-  );
-  const headerBufferView = new DataView(headerBuffer);
-  headerBufferView.setUint32(0, texHeader.attributes, true);
-  headerBufferView.setUint32(4, texHeader.format, true);
-  headerBufferView.setUint16(8, texHeader.width, true);
-  headerBufferView.setUint16(10, texHeader.height, true);
-  headerBufferView.setUint16(12, texHeader.depth, true);
-  headerBufferView.setUint16(14, texHeader.mipLevels, true);
-  headerBufferView.setUint16(15, texHeader.arraySize, true);
-  texHeader.lodIndices.forEach((v, i) => {
-    headerBufferView.setUint32(16 + (i * 4), v, true);
-  });
-  texHeader.offsetsToSurfaces.forEach((v, i) => {
-    headerBufferView.setUint32(28 + (i * 4), v, true);
-  });
-
-  const bodyBuffer = body._raw.buffer;
-
-  const headerBufferArray = new Uint8Array(headerBuffer);
-  const bodyBufferArray = body._raw;
-
-  const fileBuffer = new ArrayBuffer(headerBuffer.byteLength + bodyBuffer.byteLength);
-  const fileBufferView = new DataView(fileBuffer);
-  headerBufferArray.forEach((v, i) => {
-    fileBufferView.setUint8(i, v);
-  });
-  bodyBufferArray.forEach((v, i) => {
-    fileBufferView.setUint8(headerBuffer.byteLength + i, v);
-  });
+  // Build the file data
+  const fileBuffers = [
+    new Uint32Array([texHeader.attributes]),
+    new Uint32Array([texHeader.format]),
+    new Uint16Array([texHeader.width]),
+    new Uint16Array([texHeader.height]),
+    new Uint16Array([texHeader.depth]),
+    new Uint8Array([texHeader.mipLevels]),
+    new Uint8Array([texHeader.arraySize]),
+    new Uint32Array(texHeader.lodIndices),
+    new Uint32Array(texHeader.offsetsToSurfaces),
+    body._raw,
+  ];
 
   return {
     header: texHeader,
-    buffer: fileBuffer,
+    data: fileBuffers,
   };
 }

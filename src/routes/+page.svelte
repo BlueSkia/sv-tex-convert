@@ -82,11 +82,11 @@
         if (await isDds(file)) {
           console.info('DDS file');
           targetType = 'TEX';
-          const { header, buffer } = await ddsToTex(file);
+          const { header, data } = await ddsToTex(file);
           console.info(header);
           converted = JSON.stringify(header, null, 2);
 
-          const downloadBlob = new Blob([buffer], { type: 'application/octet-stream' });
+          const downloadBlob = new Blob(data, { type: 'application/octet-stream' });
           const url = URL.createObjectURL(downloadBlob);
           blobUrl = url;
           blobFilename = `${basename}.tex`;
