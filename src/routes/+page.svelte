@@ -103,12 +103,16 @@
   }
 </script>
 
-<h1 class="text-2xl text-center font-bold my-2">
+<h1 class="text-3xl text-center font-bold my-2">
   sv-tex-convert
 </h1>
 
-<div>
-  <p>
+<div class="w-2/3 mx-auto">
+  <p class="text-center my-4">
+    <a href="https://github.com/BlueSkia/sv-tex-convert">Source</a>
+  </p>
+
+  <p class="text-center">
     <label>
       <input
         class="border-2 border-slate-500 rounded-md bg-slate-200 px-2"
@@ -125,48 +129,49 @@
     >
       Convert
     </button>
-
-    <br/>
-
-    * Only DDS to tex. BC5 still in progress.
   </p>
+
+  {#if converted}
+    <p class="text-center text-lg my-2">
+      <a
+        class="font-bold text-purple-300"
+        href={blobUrl}
+        download={blobFilename}
+      >
+        Download {blobFilename}
+      </a>
+    </p>
+  {/if}
 
   <div class="outcols grid grid-cols-2 gap-2">
     <div
       class={{
-        'bg-emerald-100': resultType === 'DDS',
-        'bg-pink-100': resultType === 'TEX',
+        'bg-emerald-900': resultType === 'DDS',
+        'bg-pink-900': resultType === 'TEX',
       }}
     >
       {#if readError}
         <p class="text-red-500">{readError}</p>
       {/if}
       {#if result}
-        <p>
-          File data (type {resultType}):
+        <p class="text-center">
+          File metadata (type {resultType}):
         </p>
         <pre>{result}</pre>
       {/if}
     </div>
     <div
       class={{
-        'bg-emerald-100': targetType === 'DDS',
-        'bg-pink-100': targetType === 'TEX',
+        'bg-emerald-900': targetType === 'DDS',
+        'bg-pink-900': targetType === 'TEX',
       }}
     >
       {#if conversionError}
         <p class="text-red-500">{conversionError}</p>
       {/if}
       {#if converted}
-        <p>
-          Converting to {targetType}.
-          <a
-            class='font-bold text-purple-700'
-            href={blobUrl}
-            download={blobFilename}
-          >
-            Download
-          </a>
+        <p class="text-center">
+          File metadata (type {targetType}):
         </p>
         <pre>{converted}</pre>
       {/if}
